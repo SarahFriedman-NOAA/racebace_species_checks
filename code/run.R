@@ -34,7 +34,9 @@ source("code/functions.R")
 ## Connect to Oracle -------------------------------------------------------
 # only need to run this once per session
 #source("C:/Users/sarah.friedman/Work/Rfunctions/ConnectToOracle_STF.R")
-source("code/ConnectToOracle.R")
+if(!use_cached){
+  source("code/ConnectToOracle.R")
+}
 
 
 
@@ -51,26 +53,12 @@ if(!exists("cruise_haul_all")){
 
 
 ## Plot data for species  -------------------------------------------------------
-sp <- "redstripe rockfish"
+sp <- "Darkblotch Rockfish"
 
 
 # function ensures species is actually found in database
-check_species(sp)
+sp <- check_species(sp)
 
-
-cruise_haul <- cruise_haul_all %>%
-  dplyr::filter(tolower(common_name) == tolower(sp)) 
-
-
-# can add filters to sp_data to look at specific years, stations, stratum, etc.
-sp_data <- specimen %>%
-  dplyr::filter(common_name == tolower(sp)) %>%
-  full_join(cruise_haul) 
-
-
-
-
-## plots data
 
 # entering values here will display them on the associated output plots for easy comparisons to database info. for that species
 # lat <- 58.109
@@ -78,5 +66,10 @@ sp_data <- specimen %>%
 # depth <- 30
 # weight <- 1.2
 
+
+# plot species data
 source("code/02_plot_data.R")
 
+
+
+# make into function that works for species code, species name, common name

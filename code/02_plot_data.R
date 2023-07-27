@@ -1,3 +1,29 @@
+# creating species-specific data
+if(any(grepl(sp, species$common_name, ignore.case = TRUE))){
+
+cruise_haul <- cruise_haul_all %>%
+  dplyr::filter(grepl(sp, common_name, ignore.case = TRUE)) 
+
+# can add filters to sp_data to look at specific years, stations, stratum, etc.
+sp_data <- specimen %>%
+  dplyr::filter(grepl(sp, common_name, ignore.case = TRUE)) %>%
+  full_join(cruise_haul) 
+
+} else {
+  if(species %in% species$species_name){
+    cruise_haul <- cruise_haul_all %>%
+      dplyr::filter(grepl(sp, species_name, ignore.case = TRUE)) 
+    
+    # can add filters to sp_data to look at specific years, stations, stratum, etc.
+    sp_data <- specimen %>%
+      dplyr::filter(grepl(sp, species_name, ignore.case = TRUE)) %>%
+      full_join(cruise_haul) 
+  } else {
+    stop("No data selected. Spelling of species name may be incorrect.")
+  }
+}
+
+
 
 # data to check against, should be input in "knowns" section of run file
 check_data <- tibble(
@@ -10,11 +36,11 @@ check_data <- tibble(
   mutate(val = as.numeric(val))
 
 
-if(nrow(sp_data) == 0){
-  nm <- species$common_name[agrep(sp, species$common_name)]
-  nm <- paste0(nm, collpase = "\n")
-  stop("No data selected. Spelling of species name may be incorrect. Similar names that are present:\n", nm)
-}
+# if(nrow(sp_data) == 0){
+#   nm <- species$common_name[agrep(sp, species$common_name)]
+#   nm <- paste0(nm, collpase = "\n")
+#   stop("No data selected. Spelling of species name may be incorrect. Similar names that are present:\n", nm)
+# }
 
 
 

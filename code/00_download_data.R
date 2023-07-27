@@ -57,7 +57,12 @@ locations <- c(
 
 
 
-if (!file.exists("data/oracle")) dir.create("data/oracle", recursive = TRUE)
+if (!file.exists("data/oracle")) {
+  message("Data not found in folder. Re-downloading tables from Oracle.")
+  source("code/ConnectToOracle.R")
+  use_cached <- FALSE 
+  dir.create("data/oracle", recursive = TRUE)
+}
 
 # what files are already on local machine?
 if (use_cached) {
@@ -68,7 +73,7 @@ if (use_cached) {
 }
 
 
-if(!all(tolower(gsub("\\.", "-", locations)) == local_files)){
+if(!all(tolower(gsub("\\.", "-", locations)) == local_files) | is.null(local_files)){
   if(!exists("channel")){
     cat("Tables required from racebase. Connect to Oracle and re-run this script.\n")
     source("code/ConnectToOracle.R")
