@@ -73,7 +73,7 @@ if (use_cached) {
 }
 
 
-if(!all(tolower(gsub("\\.", "-", locations)) == local_files) | is.null(local_files)){
+if(!all(tolower(gsub("\\.", "-", locations)) %in% local_files) | is.null(local_files)){
   if(!exists("channel")){
     cat("Tables required from racebase. Connect to Oracle and re-run this script.\n")
     source("code/ConnectToOracle.R")
