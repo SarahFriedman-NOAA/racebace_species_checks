@@ -7,15 +7,10 @@ check_species <- function(sp){
   
   if(length(g) == 0 & length(s) != 0) g <- s
 
-  if(!grepl(g, sp, ignore.case = TRUE)){
+  if( length(g) == 0 || !grepl(g, sp, ignore.case = TRUE) ){
     if(length(g) == 0 & grepl(" ", sp)){
       g2 <- str_extract(sp, "[A-Za-z]+$")
-      if(!is.null(s)){
-        g <- species$common_name[agrep(g2, species$species_name, ignore.case = TRUE)]
-        
-      } else {
       g <- species$common_name[agrep(g2, species$common_name, ignore.case = TRUE)]
-      }
     } 
       
       message("\n\n")
