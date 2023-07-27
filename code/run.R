@@ -53,7 +53,7 @@ if(!exists("cruise_haul_all")){
 
 
 ## Plot data for species  -------------------------------------------------------
-sp <- "Darkblotch Rockfish"
+sp <- "Sebastes alutus"
 
 
 # function ensures species is actually found in database

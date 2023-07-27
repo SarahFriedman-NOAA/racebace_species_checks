@@ -10,7 +10,7 @@ sp_data <- specimen %>%
   full_join(cruise_haul) 
 
 } else {
-  if(species %in% species$species_name){
+  if(any(grepl(sp, species$species_name, ignore.case = TRUE))){
     cruise_haul <- cruise_haul_all %>%
       dplyr::filter(grepl(sp, species_name, ignore.case = TRUE)) 
     
