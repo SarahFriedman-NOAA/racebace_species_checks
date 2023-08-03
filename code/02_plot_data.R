@@ -7,7 +7,7 @@ cruise_haul <- cruise_haul_all %>%
 # can add filters to sp_data to look at specific years, stations, stratum, etc.
 sp_data <- specimen %>%
   dplyr::filter(grepl(sp, common_name, ignore.case = TRUE)) %>%
-  full_join(cruise_haul) 
+  right_join(cruise_haul) 
 
 } else {
   if(any(grepl(sp, species$species_name, ignore.case = TRUE))){
@@ -17,7 +17,7 @@ sp_data <- specimen %>%
     # can add filters to sp_data to look at specific years, stations, stratum, etc.
     sp_data <- specimen %>%
       dplyr::filter(grepl(sp, species_name, ignore.case = TRUE)) %>%
-      full_join(cruise_haul) 
+      right_join(cruise_haul) 
   } else {
     stop("No data selected. Spelling of species name may be incorrect.")
   }
@@ -29,7 +29,6 @@ sp_data <- specimen %>%
 check_data <- tibble(
   common_name = tolower(sp),
   length = size,
-  weight = weight,
   bottom_depth = depth
 ) %>%
   pivot_longer(cols = length:bottom_depth, names_to = "var", values_to = "val") %>%
@@ -57,7 +56,7 @@ if(nrow(sp_data) > 5e6){
 
 
 plot_data <- tmp %>%
-  select(region, length, weight, bottom_depth, year) %>%
+  select(region, length, bottom_depth, year) %>%
   pivot_longer(cols = c(length:bottom_depth), names_to = "var", values_to = "val")
 
 

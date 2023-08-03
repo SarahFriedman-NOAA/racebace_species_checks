@@ -86,44 +86,40 @@ specimen <- specimen0 %>%
     sex == 3 ~ "unid"
   )) %>%
   dplyr::select(cruisejoin:cruise, specimenid, species_code, 
-                length, sex = sex_new, weight, age, species_name:phylum) 
+                 sex = sex_new, weight, age, species_name:phylum) 
 
 
 
 ## Cleaning cruise info from RACE.DATA
 # AFAIK (Megsie) you can only get the name of the survey from the cruises.csv file, which is from RACEDATA
-cruise <- v_cruises0 %>%
-  dplyr::select(
-    cruise_id, year, vessel_id, cruise, start_date,
-    end_date, cruisejoin
-  ) %>%
-  dplyr::filter(year >= 2000 & year != 2020) # no cruises happened in 2020 (covid)
+survey_def_ids <- c("AI" = 52, "GOA" = 47, "EBS" = 98, 
+                    "BSS" = 78, "NBS" = 143)
 
 
 
-# ok, now I need to incorporate the catch data
-catch <- catch0 %>%
-  select(-c(subsample_code:database), -vessel) %>%
-  rename(total_weight = weight) 
+cruise <- read_csv("data/oracle/race_data-v_cruises.csv") %>%
+  janitor::clean_names() %>%
+  filter(year >= 2000 & survey_definition_id %in% survey_def_ids) %>%
+  select(year, survey_definition_id, cruisejoin, region, cruise, cruise_id, vessel_id)
 
-
-
-# standard filters for haul data set among RACE folks, dropping rows with missing coordinates
 haul <- haul0 %>%
-  dplyr::filter(performance >= 0 & # only "good" hauls
-    haul_type == 3 & # only standard bottom trawl
-    abundance_haul == "Y" & !is.null(stationid)) %>% # hauls used in abundance estimates
-  dplyr::select(
-    cruisejoin, hauljoin, region, gear_depth,
-    bottom_depth, start_latitude, start_longitude, start_time, stationid, stratum
-  )
+  clean_names() %>%
+  filter(abundance_haul == "Y" & performance >= 0) %>%
+  select(cruisejoin:haul, start_latitude, start_longitude, bottom_depth)
+
+catch <- catch0 %>%
+  janitor::clean_names() %>%
+  select(cruisejoin:species_code) %>%
+  right_join(cruise) %>%
+  right_join(haul)
 
 
 # combining haul & cruise information, has all abiotic info + locations
-cruise_haul_all <- left_join(haul, cruise, by = c("cruisejoin")) %>%
-  full_join(catch) %>% 
+cruise_haul_all <- catch %>% 
+  left_join(v_extract_final_lengths0) %>%
   left_join(species, by = "species_code") %>%
-  select(species_name:class,cruisejoin:start_longitude, year, species_code, cruise, stationid, stratum)
+  select(species_name:class, cruisejoin:start_longitude, year, 
+         species_code, length, cruise, bottom_depth ) 
 
 
 lat <- long <- depth <- size <- weight <- NA

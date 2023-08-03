@@ -3,7 +3,6 @@
 # RACEBASE tables to query
 locations <- c(
   ## General Tables of data (racebase)
-  # "RACEBASE.CATCH",
   "RACEBASE.HAUL",
   # "RACEBASE.LENGTH", #DO NOT USE THIS
   "RACEBASE.SPECIMEN",

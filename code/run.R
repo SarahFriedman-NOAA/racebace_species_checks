@@ -53,7 +53,7 @@ if(!exists("cruise_haul_all")){
 
 
 ## Plot data for species  -------------------------------------------------------
-sp <- "Sebastes alutus"
+sp <- "harlequin"
 
 
 # function ensures species is actually found in database
@@ -64,7 +64,6 @@ sp <- check_species(sp)
 # lat <- 58.109
 # long <- -167.123
 # depth <- 30
-# weight <- 1.2
 
 
 # plot species data
