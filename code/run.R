@@ -36,6 +36,7 @@ source("code/functions.R")
 #source("C:/Users/sarah.friedman/Work/Rfunctions/ConnectToOracle_STF.R")
 if(!use_cached){
   source("code/ConnectToOracle.R")
+  source("code/00_download_data.R")
 }
 
 
@@ -43,17 +44,14 @@ if(!use_cached){
 
 ## Download data  -------------------------------------------------------
 
-if(!exists("cruise_haul_all")){
-  # download all relevant tables from Oracle to local computer
-  source("code/00_download_data.R")
-  source("code/01_clean_data.R") # final output are a lengths table and a cruise_haul table
-}
+# download all relevant tables from Oracle to local computer
+source("code/01_clean_data.R") # final output are a lengths table and a cruise_haul table
 
 
 
 
 ## Plot data for species  -------------------------------------------------------
-sp <- "harlequin"
+sp <- "aleutian skate"
 
 
 # function ensures species is actually found in database
@@ -61,14 +59,12 @@ sp <- check_species(sp)
 
 
 # entering values here will display them on the associated output plots for easy comparisons to database info. for that species
-# lat <- 58.109
-# long <- -167.123
+# lat <- 52
+# long <- -170
 # depth <- 30
-
+# length <- 740
+# weight <- 3040
 
 # plot species data
 source("code/02_plot_data.R")
 
-
-
-# make into function that works for species code, species name, common name

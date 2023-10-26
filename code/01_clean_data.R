@@ -49,34 +49,6 @@ species <- species0 %>%
   )
 
 
-# making a clean lengths data frame with taxonomic information and up-to-date length info
-# length <- v_extract_final_lengths0 %>%
-#   mutate(length_type = case_when(
-#     length_type == 1 ~ "fork length",
-#     length_type == 2 ~ "mideye to fork length",
-#     length_type == 3 ~ "standard length",
-#     length_type == 4 ~ "mideye to hypural plate",
-#     length_type == 5 ~ "total length",
-#     length_type == 6 ~ "snout to second dorsal",
-#     length_type == 7 ~ "carapace from back of right eye socket to end of carapace",
-#     length_type == 8 ~ "carapace width",
-#     length_type == 9 ~ "head length",
-#     length_type == 11 ~ "pre-anal length",
-#     length_type == 12 ~ "mantle length",
-#     length_type == 13 ~ "posterior of orbital to end of telson",
-#     length_type == 14 ~ "wingtip to wingtip",
-#     length_type == 15 ~ "outer tip of rostrum to end of telson",
-#     length_type == 16 ~ "modal length",
-#     length_type == 17 ~ "Length frequency estimated using size composition proportions from adjacent hauls with similar catch composition"
-#   )) %>%
-#   left_join(species, by = "species_code") %>% 
-#   dplyr::select(
-#     cruise, haul, region, species_name, taxon,
-#     length, species_code, common_name, family:phylum
-#   ) %>%
-#   mutate(common_name = tolower(common_name))
-
-
 specimen <- specimen0 %>%
   left_join(species, by = "species_code") %>%
   mutate(common_name = tolower(common_name)) %>%
@@ -85,7 +57,7 @@ specimen <- specimen0 %>%
     sex == 2 ~ "female",
     sex == 3 ~ "unid"
   )) %>%
-  dplyr::select(cruisejoin:cruise, specimenid, species_code, 
+  dplyr::select(cruisejoin:cruise, specimenid, species_code, length, 
                  sex = sex_new, weight, age, species_name:phylum) 
 
 
@@ -110,8 +82,8 @@ haul <- haul0 %>%
 catch <- catch0 %>%
   janitor::clean_names() %>%
   select(cruisejoin:species_code) %>%
-  right_join(cruise) %>%
-  right_join(haul)
+  right_join(cruise, by = join_by(cruisejoin, region, cruise)) %>%
+  right_join(haul, by = join_by(cruisejoin, hauljoin, region, vessel, cruise, haul))
 
 
 # combining haul & cruise information, has all abiotic info + locations
@@ -122,5 +94,5 @@ cruise_haul_all <- catch %>%
          species_code, length, cruise, bottom_depth ) 
 
 
-lat <- long <- depth <- size <- weight <- NA
+lat <- long <- depth <- length <- weight <- NA
 counter <- 0

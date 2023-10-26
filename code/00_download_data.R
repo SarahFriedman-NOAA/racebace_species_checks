@@ -16,43 +16,6 @@ locations <- c(
 )
 
 
-# if (specific_query) {
-#   # get species code for query
-#   code <- RODBC::sqlQuery(channel, paste0("SELECT *
-#                                           FROM RACEBASE.SPECIES
-#                                           WHERE(lower(RACEBASE.SPECIES.COMMON_NAME) = '", tolower(sp), "')"))$SPECIES_CODE
-#   
-#   if(length(code) == 0){
-#     stop("Unable to locate species. Check spelling.")
-#   }
-# 
-#   sp_locs <- locations[!str_detect(locations, "HAUL|CRUISES")]
-# 
-#   for (i in 1:length(sp_locs)) {
-#     tmp <- RODBC::sqlQuery(channel, paste0(
-#       "SELECT * FROM ", sp_locs[i],
-#       " WHERE (", sp_locs[i], ".SPECIES_CODE = ", code, ")"
-#     )) %>%
-#       janitor::clean_names() %>%
-#       as_tibble()
-# 
-#     if (names(tmp)[1] %in% "x1") {
-#       tmp$x1 <- NULL
-#     }
-# 
-#     
-#     assign(
-#       x = paste0(
-#         tolower(str_remove(sp_locs[i], "[^_]+\\.")), "0"
-#       ),
-#       value = tmp
-#     )
-#     
-#     rm(tmp)
-#   }
-# 
-#   locations <- locations[str_detect(locations, "HAUL|CRUISES")]
-# }
 
 
 

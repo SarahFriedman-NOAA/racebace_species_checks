@@ -6,8 +6,12 @@ cruise_haul <- cruise_haul_all %>%
 
 # can add filters to sp_data to look at specific years, stations, stratum, etc.
 sp_data <- specimen %>%
+  select(-length) %>%
   dplyr::filter(grepl(sp, common_name, ignore.case = TRUE)) %>%
-  right_join(cruise_haul) 
+  right_join(cruise_haul, relationship = "many-to-many", 
+             by = join_by(cruisejoin, hauljoin, region, vessel, cruise,
+                          species_code, species_name, common_name, taxon, 
+                          family, order, class)) 
 
 } else {
   if(any(grepl(sp, species$species_name, ignore.case = TRUE))){
@@ -16,8 +20,12 @@ sp_data <- specimen %>%
     
     # can add filters to sp_data to look at specific years, stations, stratum, etc.
     sp_data <- specimen %>%
+      select(-length) %>%
       dplyr::filter(grepl(sp, species_name, ignore.case = TRUE)) %>%
-      right_join(cruise_haul) 
+      right_join(cruise_haul, relationship = "many-to-many", 
+                 by = join_by(cruisejoin, hauljoin, region, vessel, cruise, 
+                              species_code, species_name, common_name, taxon, 
+                              family, order, class)) 
   } else {
     stop("No data selected. Spelling of species name may be incorrect.")
   }
@@ -28,20 +36,12 @@ sp_data <- specimen %>%
 # data to check against, should be input in "knowns" section of run file
 check_data <- tibble(
   common_name = tolower(sp),
-  length = size,
+  length = length,
+  weight = weight,
   bottom_depth = depth
 ) %>%
   pivot_longer(cols = length:bottom_depth, names_to = "var", values_to = "val") %>%
   mutate(val = as.numeric(val))
-
-
-# if(nrow(sp_data) == 0){
-#   nm <- species$common_name[agrep(sp, species$common_name)]
-#   nm <- paste0(nm, collpase = "\n")
-#   stop("No data selected. Spelling of species name may be incorrect. Similar names that are present:\n", nm)
-# }
-
-
 
 
 
@@ -56,8 +56,9 @@ if(nrow(sp_data) > 5e6){
 
 
 plot_data <- tmp %>%
-  select(region, length, bottom_depth, year) %>%
-  pivot_longer(cols = c(length:bottom_depth), names_to = "var", values_to = "val")
+  select(region, year, length, bottom_depth, weight) %>%
+  pivot_longer(cols = c(length:weight), names_to = "var", values_to = "val") %>%
+  filter(complete.cases(.))
 
 
 p <- ggplot(plot_data, aes(x = val)) +
@@ -69,8 +70,9 @@ p <- ggplot(plot_data, aes(x = val)) +
     strip.background = element_blank(),
     strip.placement = "outside"
   ) +
-  ggtitle(str_to_title(sp)) +
-  geom_vline(data = check_data, aes(xintercept = val), col = "black", size = 0.6)
+  ggtitle(str_to_sentence(sp)) +
+  geom_vline(data = filter(check_data, var %in% plot_data$var),
+             aes(xintercept = val), col = "black", linewidth = 0.6)
 
 
 
@@ -78,14 +80,15 @@ p <- ggplot(plot_data, aes(x = val)) +
 sp_occ <- sp_data %>%
   dplyr::select(species_name, lat = start_latitude, 
                 lon = start_longitude, region, year) %>%
-  mutate(lon = ifelse(lon < 0, lon, lon*-1),
-         lon = 360+lon) %>% #fixing mistake long
+  dplyr::mutate(lon = ifelse(lon < 0, 360 + lon, lon)) %>%
+  # mutate(lon = ifelse(lon < 0, lon, lon*-1),
+  #        lon = 360+lon) %>% #fixing mistake long
   unique()
 
 
-if(!is.na(long) & counter == 0){
-  long <- ifelse(long > 0, 360-long, 360+long)
-  counter <- counter + 1
+if(!is.na(long)){
+  #long <- ifelse(long < 0, abs(long), long)
+  long <- ifelse(long < 0, 360 + long, long)
 }
 
 
@@ -96,7 +99,7 @@ world <- map_data('world2', wrap=c(40,400)) %>%
 m <- ggplot() +
   geom_polygon(data = world, aes(x = long, y = lat, group = group),
                col = "grey60", fill = "grey90", lwd = 0) + 
-  coord_map(ylim = c(45, 70), xlim = c(150, 250)) +
+  coord_map(ylim = c(47, 70), xlim = c(165, 235)) +
   theme_bw() +
   labs( x = "Longitude", y = "Latitude" ) +
   geom_point(data = sp_occ, aes(x = lon, y = lat, col = year), cex = 1) +
@@ -106,7 +109,7 @@ m <- ggplot() +
 
 
 # plotting everything together
-pp <- plot_grid(p, m, nrow = 2)
+pp <- suppressWarnings(plot_grid(p, m, nrow = 2))
 print(pp)
 
 
@@ -119,15 +122,27 @@ if (save_plot) {
 
 
 
-# # #length vs. weight table
+# # length vs. weight plot
 # tmp <- specimen %>%
-#   dplyr::filter(common_name == tolower(sp)) %>%
-#   select(species_name, length, weight, sex) %>%
-#   dplyr::filter(!is.na(length) & !is.na(weight))
+#   dplyr::filter(grepl(sp, common_name, ignore.case = TRUE)) %>%
+#   dplyr::filter(cruise %in% catch$cruise) %>%
+#   dplyr::select(species_name, length, weight, sex) %>%
+#   dplyr::filter(complete.cases(.)) %>%
+#   unique()
 # 
-# tmp %>%
-#   ggplot(aes(x = length/10, y = weight/1000, group = sex, col = sex)) +
-#   geom_point(alpha = 0.4) +
-#   xlab("length (cm)") + ylab("weight (kg)") +
-#   geom_smooth(method = "gam", col = "black", se = FALSE, lwd = 1.5) +
-#   theme_classic()
+# ggplot(tmp, aes(x = length, y = weight)) +
+#   geom_point(alpha = 0.4, col = "grey80") +
+#   xlab("length (mm)") + ylab("weight (g)") +
+#   geom_smooth(method = "gam", col = "black", se = FALSE, lwd = 1) +
+#   theme_classic() +
+#   geom_point(data = tibble(length, weight),
+#              aes(x = length, y = weight), col = "red", cex = 2.5) +
+#   ggtitle(str_to_sentence(sp))
+# 
+# # get predicted values based on GAM
+# library(mgcv)
+# mod <- mgcv::gam(weight ~ s(length, bs = "cs", fx = TRUE, k = 10), data = tmp)
+# 
+# # expected length and weight based on values
+# pred_length <- approx(x = mod$fitted.values, y = tmp$length, xout = weight)$y
+# pred_weight <- predict(mod, data.frame(length = length))[[1]] 
