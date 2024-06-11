@@ -10,7 +10,7 @@ use_cached <- TRUE
 save_plot <- FALSE
 
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ #
 
 
 
@@ -33,9 +33,12 @@ source("code/functions.R")
 
 ## Connect to Oracle -------------------------------------------------------
 # only need to run this once per session
-#source("C:/Users/sarah.friedman/Work/Rfunctions/ConnectToOracle_STF.R")
-if(!use_cached){
-  source("code/ConnectToOracle.R")
+if(!use_cached | !file.exists("data/oracle")){
+  if (file.exists("Z:/Projects/ConnectToOracle.R")) {
+    source("Z:/Projects/ConnectToOracle.R")
+  } else {
+    gapindex::get_connected()
+  }
   source("code/00_download_data.R")
 }
 
@@ -49,22 +52,6 @@ source("code/01_clean_data.R") # final output are a lengths table and a cruise_h
 
 
 
-
 ## Plot data for species  -------------------------------------------------------
-sp <- "aleutian skate"
-
-
-# function ensures species is actually found in database
-sp <- check_species(sp)
-
-
-# entering values here will display them on the associated output plots for easy comparisons to database info. for that species
-# lat <- 52
-# long <- -170
-# depth <- 30
-# length <- 740
-# weight <- 3040
-
-# plot species data
-source("code/02_plot_data.R")
-
+# function to plot species (either common or scientific name), can add arguments lat, long, depth, length, or weight; entering any of these values will display them on the associated output plots for easy comparisons to database info. for that species
+plot_species("yellowmouth rockfish")

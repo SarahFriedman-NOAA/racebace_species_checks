@@ -20,8 +20,7 @@ locations <- c(
 
 
 if (!file.exists("data/oracle")) {
-  message("Data not found in folder. Re-downloading tables from Oracle.")
-  source("code/ConnectToOracle.R")
+  message("\nData not found in folder. Re-downloading tables from Oracle.")
   use_cached <- FALSE 
   dir.create("data/oracle", recursive = TRUE)
 }
