@@ -59,4 +59,4 @@ plot_species("Enophrys lucasi")
 
 
 # function to check length-weight relationships for a species, can enter arguments length, weight, or predict (logical). If predict = TRUE and either length or weight is NA, function will predict the other value and plot.
-plot_length_weight("aleutian skate", weight = 12, predict = TRUE)
+plot_length_weight("aleutian skate", length = 1340, predict = TRUE)

@@ -202,6 +202,7 @@ plot_length_weight <- function(sp, length = NA, weight = NA, predict = TRUE) {
       dplyr::filter(grepl(sp, common_name, ignore.case = TRUE)) %>%
       dplyr::filter(cruise %in% catch$cruise) %>%
       dplyr::select(species_name, length, weight, sex) %>%
+      dplyr::mutate(weight = weight/1000) %>%
       dplyr::filter(complete.cases(.)) %>%
       unique()
   }
@@ -211,13 +212,14 @@ plot_length_weight <- function(sp, length = NA, weight = NA, predict = TRUE) {
       dplyr::filter(grepl(sp, species_name, ignore.case = TRUE)) %>%
       dplyr::filter(cruise %in% catch$cruise) %>%
       dplyr::select(species_name, length, weight, sex) %>%
+      dplyr::mutate(weight = weight/1000) %>%
       dplyr::filter(complete.cases(.)) %>%
       unique()
   }
 
   if (nrow(tmp) < 5) stop("Not enough length/weight data to complete request. Try a different species.")
 
-  p <- ggplot2::ggplot(tmp, aes(x = length, y = weight/1000)) +
+  p <- ggplot2::ggplot(tmp, aes(x = length, y = weight)) +
     ggplot2::geom_point(alpha = 0.4, col = "grey80") +
     ggplot2::xlab("length (mm)") +
     ggplot2::ylab("weight (kg)") +
@@ -227,7 +229,7 @@ plot_length_weight <- function(sp, length = NA, weight = NA, predict = TRUE) {
 
   if (predict & (!is.na(length) | !is.na(weight))) {
     # get predicted values based on GAM
-    mod <- mgcv::gam(weight/1000 ~ s(length, bs = "cs", fx = TRUE, k = 10), data = tmp)
+    mod <- mgcv::gam(weight ~ s(length, bs = "cs", fx = TRUE, k = 10), data = tmp)
 
     # expected length and weight based on values
     if (!is.na(weight)) {
@@ -240,7 +242,7 @@ plot_length_weight <- function(sp, length = NA, weight = NA, predict = TRUE) {
         )
     } else {
       pred_weight <- stats::predict(mod, data.frame(length = length))[[1]]
-      cat(paste("Predicted weight based on length is", round(pred_weight/1000, 2), "kg\n"))
+      cat(paste("Predicted weight based on length is", round(pred_weight, 2), "kg\n"))
       p <- p +
         ggplot2::geom_point(
           data = tibble(length, pred_weight),
