@@ -15,7 +15,7 @@ save_plot <- FALSE
 
 
 ## Load packages -----------------------------------------------------------
-pkg <- c("tidyverse", "RODBC", "here", "janitor", "cowplot", "getPass")
+pkg <- c("tidyverse", "RODBC", "here", "janitor", "cowplot", "getPass", "mgcv")
 for (p in pkg) {
   if (!require(p, character.only = TRUE)) {
     install.packages(p)
@@ -52,6 +52,11 @@ source("code/01_clean_data.R") # final output are a lengths table and a cruise_h
 
 
 
+
 ## Plot data for species  -------------------------------------------------------
 # function to plot species (either common or scientific name), can add arguments lat, long, depth, length, or weight; entering any of these values will display them on the associated output plots for easy comparisons to database info. for that species
-plot_species("aleutian skate")
+plot_species("Enophrys lucasi")
+
+
+# function to check length-weight relationships for a species, can enter arguments length, weight, or predict (logical). If predict = TRUE and either length or weight it NA, function will predict the other value and plot.
+plot_length_weight("aleutian skate", length = 1340, predict = TRUE)
