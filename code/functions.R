@@ -32,13 +32,21 @@ check_species <- function(sp){
                 as.character(g$species[take]), "'.\n")
         sp <-  g$species[take]
       }
-      } else { cat("No similar species found in database. Check spelling.")}
-      } else {
-    message(sp, " found in database!\n")
-      }
+      } else { cat("No similar species found in database. Check spelling.\n")}
+      } 
   return(sp)
 }
 
+
+to_vouch <- function(x){
+  this_year <- as.numeric(format(Sys.Date(), "%Y"))
+  x <- x %>%
+    dplyr::count(year) %>%
+    dplyr::filter(year > (this_year - 10)) %>%
+    tidyr::complete(year = seq(this_year-10, this_year, by = 1), fill = list(n = 0)) %>%
+    dplyr::mutate(freq = mean(n)/10) 
+  if(x$freq[[1]] > 0.5) "" else "voucher recommended"
+}
 
 
 plot_species <- function(sp, lat = NA, long = NA, depth = NA, weight = NA){
@@ -80,16 +88,15 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, weight = NA){
     }
   }
   
-  
-  
+
   # data to check against, should be input in "knowns" section of run file
   check_data <- tibble(
     common_name = tolower(sp),
-    length = length,
-    weight = weight,
+    length_mm = length,
+    weight_g = weight,
     bottom_depth = depth
   ) %>%
-    pivot_longer(cols = length:bottom_depth, names_to = "var", values_to = "val") %>%
+    pivot_longer(cols = length_mm:bottom_depth, names_to = "var", values_to = "val") %>%
     mutate(val = as.numeric(val))
   
   
@@ -103,11 +110,22 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, weight = NA){
     tmp <- sp_data 
   }
   
-  
   plot_data <- tmp %>%
     select(region, year, length_mm = length, depth_m = bottom_depth, weight_g = weight) %>%
     pivot_longer(cols = c(length_mm:weight_g), names_to = "var", values_to = "val") %>%
     filter(complete.cases(.))
+  
+  
+    
+  ## species occurrence and plotting map data
+  sp_occ <- sp_data %>%
+    dplyr::select(species_name, lat = start_latitude, 
+                  lon = start_longitude, region, year) %>%
+    dplyr::mutate(lon = ifelse(lon < 0, 360 + lon, lon)) %>%
+    # mutate(lon = ifelse(lon < 0, lon, lon*-1),
+    #        lon = 360+lon) %>% #fixing mistake long
+    unique()
+  
   
   
   p <- ggplot(plot_data, aes(x = val)) +
@@ -119,21 +137,10 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, weight = NA){
       strip.background = element_blank(),
       strip.placement = "outside"
     ) +
-    ggtitle(str_to_sentence(sp)) +
+    ggtitle(label = str_to_sentence(sp), subtitle = to_vouch(sp_occ)) +
     geom_vline(data = filter(check_data, var %in% plot_data$var),
-               aes(xintercept = val), col = "black", linewidth = 0.6)
-  
-  
-  
-  ## species occurrence and plotting map data
-  sp_occ <- sp_data %>%
-    dplyr::select(species_name, lat = start_latitude, 
-                  lon = start_longitude, region, year) %>%
-    dplyr::mutate(lon = ifelse(lon < 0, 360 + lon, lon)) %>%
-    # mutate(lon = ifelse(lon < 0, lon, lon*-1),
-    #        lon = 360+lon) %>% #fixing mistake long
-    unique()
-  
+               aes(xintercept = val), col = "red", linewidth = 0.6)
+
   
   if(!is.na(long)){
     #long <- ifelse(long < 0, abs(long), long)
