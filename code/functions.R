@@ -227,12 +227,12 @@ plot_length_weight <- function(sp, length = NA, weight = NA, predict = TRUE) {
 
   if (predict & (!is.na(length) | !is.na(weight))) {
     # get predicted values based on GAM
-    mod <- mgcv::gam(weight ~ s(length, bs = "cs", fx = TRUE, k = 10), data = tmp)
+    mod <- mgcv::gam(weight/1000 ~ s(length, bs = "cs", fx = TRUE, k = 10), data = tmp)
 
     # expected length and weight based on values
     if (!is.na(weight)) {
       pred_length <- stats::approx(x = mod$fitted.values, y = tmp$length, xout = weight)$y
-      cat(paste("Predicted length based on weight is", round(pred_length, 2), "mm\n"))
+      cat(paste("Predicted length based on weight is", round(pred_length, 0), "mm\n"))
       p <- p +
         ggplot2::geom_point(
           data = tibble(pred_length, weight),
