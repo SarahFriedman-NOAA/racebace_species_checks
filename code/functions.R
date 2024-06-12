@@ -45,7 +45,7 @@ to_vouch <- function(x){
     dplyr::filter(year > (this_year - 10)) %>%
     tidyr::complete(year = seq(this_year-10, this_year, by = 1), fill = list(n = 0)) %>%
     dplyr::mutate(freq = mean(n)/10) 
-  if(x$freq[[1]] > 0.5) "" else "voucher recommended"
+  if(x$freq[[1]] > 0.3) "" else "voucher recommended"
 }
 
 
