@@ -193,7 +193,7 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, length = NA, weigh
 
 
 # length vs. weight plot and predicting values
-plot_length_weight <- function(sp, length = NA, weight = NA, predict = TRUE) {
+plot_length_weight <- function(sp, length = NA, weight = NA) {
   # function ensures species is actually found in database
   sp <- check_species(sp)
 
@@ -227,12 +227,12 @@ plot_length_weight <- function(sp, length = NA, weight = NA, predict = TRUE) {
     ggplot2::theme_classic() +
     ggplot2::ggtitle(str_to_sentence(sp))
 
-  if (predict & (!is.na(length) | !is.na(weight))) {
+
     # get predicted values based on GAM
     mod <- mgcv::gam(weight ~ s(length, bs = "cs", fx = TRUE, k = 10), data = tmp)
 
     # expected length and weight based on values
-    if (!is.na(weight)) {
+    if (!is.na(weight) & is.na(length)) {
       pred_length <- stats::approx(x = mod$fitted.values, y = tmp$length, xout = weight)$y
       cat(paste("Predicted length based on weight is", round(pred_length, 0), "mm\n"))
       p <- p +
@@ -240,7 +240,8 @@ plot_length_weight <- function(sp, length = NA, weight = NA, predict = TRUE) {
           data = tibble(pred_length, weight),
           aes(x = pred_length, y = weight), col = "red", cex = 2.5
         )
-    } else {
+    } 
+    if(is.na(weight) & !is.na(length)){
       pred_weight <- stats::predict(mod, data.frame(length = length))[[1]]
       cat(paste("Predicted weight based on length is", round(pred_weight, 2), "kg\n"))
       p <- p +
@@ -249,8 +250,8 @@ plot_length_weight <- function(sp, length = NA, weight = NA, predict = TRUE) {
           aes(x = length, y = pred_weight/1000), col = "red", cex = 2.5
         )
     }
-  }
-  if (!predict & !is.na(length) & !is.na(weight)) {
+  
+  if (!is.na(length) & !is.na(weight)) {
     p <- p +
       ggplot2::geom_point(
         data = tibble(length, weight),
