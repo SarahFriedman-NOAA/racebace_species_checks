@@ -66,10 +66,10 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, length = NA, weigh
     sp_data <- specimen %>%
       dplyr::select(-length) %>%
       dplyr::filter(grepl(sp, common_name, ignore.case = TRUE)) %>%
-      dplyr::right_join(cruise_haul,
+      dplyr::full_join(cruise_haul,
         relationship = "many-to-many",
         by = join_by(
-          cruisejoin, hauljoin, region, vessel, cruise,
+          cruisejoin, hauljoin, region, vessel, cruise, year,
           species_code, species_name, common_name, taxon,
           family, order, class
         )
@@ -81,12 +81,12 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, length = NA, weigh
 
       # can add filters to sp_data to look at specific years, stations, stratum, etc.
       sp_data <- specimen %>%
-        dplyr::select(-length) %>%
+        dplyr::select(-length) %>% #removing bc redundant with length table
         dplyr::filter(grepl(sp, species_name, ignore.case = TRUE)) %>%
-        dplyr::right_join(cruise_haul,
+        dplyr::full_join(cruise_haul,
           relationship = "many-to-many",
           by = join_by(
-            cruisejoin, hauljoin, region, vessel, cruise,
+            cruisejoin, hauljoin, region, vessel, cruise, year,
             species_code, species_name, common_name, taxon,
             family, order, class
           )
@@ -121,7 +121,7 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, length = NA, weigh
     dplyr::select(region, year, length_mm = length, depth_m = bottom_depth, weight_kg = weight) %>%
     dplyr::mutate(weight_kg = weight_kg / 1000) %>%
     tidyr::pivot_longer(cols = c(length_mm:weight_kg), names_to = "var", values_to = "val") %>%
-    dplyr::filter(complete.cases(.))
+    dplyr::filter(!is.na(val))
 
 
 
@@ -132,11 +132,10 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, length = NA, weigh
       lon = start_longitude, region, year
     ) %>%
     dplyr::mutate(lon = ifelse(lon < 0, 360 + lon, lon)) %>%
+    dplyr::filter(!is.na(lat) & !is.na(lon) & region %in% c("GOA", "AI", "BS")) %>%
     # mutate(lon = ifelse(lon < 0, lon, lon*-1),
     #        lon = 360+lon) %>% #fixing mistake long
     unique()
-
-
 
   p <- ggplot2::ggplot(plot_data, aes(x = val)) +
     ggplot2::geom_density(aes(fill = region, col = region), alpha = 0.6) +
