@@ -119,8 +119,7 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, length = NA, weigh
 
   plot_data <- tmp %>%
     dplyr::select(region, year, length_mm = length, depth_m = bottom_depth, weight_kg = weight) %>%
-    dplyr::mutate(weight_kg = weight_kg / 1000,
-                  length_mm = length_mm) %>%
+    dplyr::mutate(weight_kg = weight_kg / 1000) %>%
     tidyr::pivot_longer(cols = c(length_mm:weight_kg), names_to = "var", values_to = "val") %>%
     dplyr::filter(complete.cases(.))
 
@@ -214,7 +213,7 @@ plot_length_weight <- function(sp, length = NA, weight = NA) {
       dplyr::filter(grepl(sp, species_name, ignore.case = TRUE)) %>%
       dplyr::filter(cruise %in% catch$cruise) %>%
       dplyr::select(species_name, length, weight, sex) %>%
-      dplyr::mutate(weight = weight / 1000,
+      dplyr::mutate(weight = weight/1000,
                     length = length) %>%
       dplyr::filter(complete.cases(.)) %>%
       unique()
@@ -224,7 +223,7 @@ plot_length_weight <- function(sp, length = NA, weight = NA) {
 
   p <- ggplot2::ggplot(tmp, aes(x = length, y = weight)) +
     ggplot2::geom_point(alpha = 0.4, col = "grey80") +
-    ggplot2::xlab("length (cm)") +
+    ggplot2::xlab("length (mm)") +
     ggplot2::ylab("weight (kg)") +
     ggplot2::geom_smooth(method = "gam", col = "black", se = FALSE, lwd = 1) +
     ggplot2::theme_classic() +
