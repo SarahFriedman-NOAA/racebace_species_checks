@@ -37,7 +37,7 @@ if(!use_cached | !file.exists("data/oracle")){
   if (file.exists("Z:/Projects/ConnectToOracle.R")) {
     source("Z:/Projects/ConnectToOracle.R")
   } else {
-    gapindex::get_connected()
+    channel <- gapindex::get_connected()
   }
   source("code/00_download_data.R")
 }
@@ -55,7 +55,7 @@ source("code/01_clean_data.R") # final output are a lengths table and a cruise_h
 
 ## Plot data for species  -------------------------------------------------------
 # function to plot species (either common or scientific name), can add arguments lat, long, depth, length, or weight; entering any of these values will display them on the associated output plots for easy comparisons to database info. for that species
-plot_species("greenland turbot")
+plot_species("yellow irish lord")
 
 
 # function to check length-weight relationships for a species, can enter arguments length and/or weight. If either length or weight is not designated function will predict the other value and plot.
