@@ -55,7 +55,7 @@ source("code/01_clean_data.R") # final output are a lengths table and a cruise_h
 
 ## Plot data for species  -------------------------------------------------------
 # function to plot species (either common or scientific name), can add arguments lat, long, depth, length, or weight; entering any of these values will display them on the associated output plots for easy comparisons to database info. for that species
-plot_species("yellow irish lord")
+plot_species("Arctomelon borealis")
 
 
 # function to check length-weight relationships for a species, can enter arguments length and/or weight. If either length or weight is not designated function will predict the other value and plot.

@@ -70,7 +70,7 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, length = NA, weigh
         relationship = "many-to-many",
         by = join_by(
           cruisejoin, hauljoin, region, vessel, cruise, year,
-          species_code, species_name, common_name, taxon,
+          species_code, species_name, common_name, taxon, weight,
           family, order, class
         )
       )
@@ -87,7 +87,7 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, length = NA, weigh
           relationship = "many-to-many",
           by = join_by(
             cruisejoin, hauljoin, region, vessel, cruise, year,
-            species_code, species_name, common_name, taxon,
+            species_code, species_name, common_name, taxon, weight,
             family, order, class
           )
         )
@@ -101,9 +101,9 @@ plot_species <- function(sp, lat = NA, long = NA, depth = NA, length = NA, weigh
     common_name = tolower(sp),
     length_mm = length,
     weight_kg = weight,
-    bottom_depth = depth
+    depth_m = depth
   ) %>%
-    tidyr::pivot_longer(cols = length_mm:bottom_depth, names_to = "var", values_to = "val") %>%
+    tidyr::pivot_longer(cols = length_mm:depth_m, names_to = "var", values_to = "val") %>%
     dplyr::mutate(val = as.numeric(val))
 
 

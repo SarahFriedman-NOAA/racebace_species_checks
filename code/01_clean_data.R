@@ -10,7 +10,7 @@
   )
   
   for (i in 1:length(a)) {
-    b <- read_csv(file = here::here("data", "oracle", a[i]))
+    suppressWarnings(b <- read_csv(file = here::here("data", "oracle", a[i]), show_col_types = FALSE))
     b <- janitor::clean_names(b)
     if (names(b)[1] %in% "x1") {
       b$x1 <- NULL
@@ -56,7 +56,7 @@ survey_def_ids <- c("AI" = 52, "GOA" = 47, "EBS" = 98,
 
 
 
-cruise <- read_csv("data/oracle/race_data-v_cruises.csv") %>%
+cruise <- readr::read_csv("data/oracle/race_data-v_cruises.csv", show_col_types = FALSE) %>%
   janitor::clean_names() %>%
   dplyr::filter(year >= 2000 & survey_definition_id %in% survey_def_ids) %>%
   dplyr::select(year, survey_definition_id, cruisejoin, region, cruise, cruise_id, vessel_id)
@@ -85,7 +85,8 @@ haul <- haul0 %>%
 
 catch <- catch0 %>%
   janitor::clean_names() %>%
-  dplyr::select(cruisejoin:species_code) %>%
+  dplyr::mutate(avg_weight = (weight/number_fish) * 1000) %>%
+  dplyr::select(cruisejoin:species_code, avg_weight) %>%
   dplyr::right_join(cruise, by = join_by(cruisejoin, region, cruise)) %>%
   dplyr::right_join(haul, by = join_by(cruisejoin, hauljoin, region, vessel, cruise, haul))
 
@@ -95,8 +96,5 @@ cruise_haul_all <- catch %>%
   dplyr::left_join(v_extract_final_lengths0) %>%
   dplyr::left_join(species, by = "species_code") %>%
   dplyr::select(species_name:class, cruisejoin:start_longitude, year, 
-         species_code, length, cruise, bottom_depth ) 
+         species_code, length, weight = avg_weight, cruise, bottom_depth ) 
 
-
-lat <- long <- depth <- length <- weight <- NA
-counter <- 0
