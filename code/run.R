@@ -15,7 +15,7 @@ save_plot <- FALSE
 
 
 ## Load packages -----------------------------------------------------------
-pkg <- c("tidyverse", "RODBC", "here", "janitor", "cowplot", "getPass", "mgcv")
+pkg <- c("tidyverse", "janitor", "cowplot", "mgcv", "gapindex")
 for (p in pkg) {
   if (!require(p, character.only = TRUE)) {
     install.packages(p)

@@ -8,7 +8,7 @@ check_species <- function(sp) {
 
   if (length(g) == 0 || !any(tolower(g) == tolower(sp))) {
     if (length(g) == 0 & grepl(" ", sp)) {
-      g2 <- str_extract(sp, "[A-Za-z]+$")
+      g2 <- stringr::str_extract(sp, "[A-Za-z]+$")
       g <- species$common_name[agrep(g2, species$common_name, ignore.case = TRUE)]
     }
 

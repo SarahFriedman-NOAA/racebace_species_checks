@@ -93,7 +93,7 @@ catch <- catch0 %>%
 
 # combining haul & cruise information, has all abiotic info + locations
 cruise_haul_all <- catch %>% 
-  dplyr::left_join(v_extract_final_lengths0) %>%
+  dplyr::left_join(v_extract_final_lengths0, by = join_by(region, vessel, cruise, haul, species_code)) %>%
   dplyr::left_join(species, by = "species_code") %>%
   dplyr::select(species_name:class, cruisejoin:start_longitude, year, 
          species_code, length, weight = avg_weight, cruise, bottom_depth ) 
